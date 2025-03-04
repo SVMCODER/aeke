@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASTRIQUES - Login/Register</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    
+  <div id="auth-container">
+    <h2 align="center">ASTRIQUES</h2>
+    <div id="tabs">
+      <button id="login-tab" class="active">Login</button>
+      <button id="register-tab">Register</button>
+    </div>
+    <!-- Login Form -->
+    <div id="login-form" class="form-container">
+      
+      <input type="email" id="login-email" placeholder="Email" required />
+      <input type="password" id="login-password" placeholder="Password" required />
+      <button onclick="loginUser()" id="log">Login</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" class="form-container">
+      <input type="text" id="register-username" placeholder="Username" required />
+      <input type="email" id="register-email" placeholder="Email" required />
+      <input type="password" id="register-password" placeholder="Password" required />
+      <input type="password" id="register-confirm-password" placeholder="Confirm Password" required />
+      <button onclick="registerUser()" id="reg">Register</button>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="forgot-form" class="form-container">
+      <h2>Forgot Password</h2>
+      <input type="email" id="forgot-email" placeholder="Enter your email" required />
+      <button onclick="resetPassword()">Reset Password</button>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container"></div>
+<style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+#auth-container {
+  width: 100%;
+  max-width: 380px;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+#tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+}
+
+#tabs button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+#tabs button.active {
+  color: #6a5acd;
+  border-bottom: 2px solid #6a5acd;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  border-color: #6a5acd;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #6a5acd;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #483d8b;
+}
+button:disabled {
+    background-color: #6153be;
+}
+p {
+  text-align: center;
+  margin-top: 10px;
+}
+
+#error {
+  color: red;
+  font-size: 14px;
+}
+
+.form-container {
+  display: none;
+}
+
+#login-form, #register-form {
+  display: block;
+}
+
+#forgot-form {
+  display: none;
+}
+
+/* Toast Notification */
+#toast-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+.toast-success {
+  background-color: #4caf50;
+}
+
+.toast-error {
+  background-color: #f44336;
+}
+
+.toast-info {
+  background-color: #2196f3;
+}
+
+.toast i {
+  margin-right: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  #auth-container {
+    padding: 20px;
+  }
+}
+
+</style>
+ <script>
+    const button = document.getElementById("log")
+    const butto = document.getElementById("reg")
+      // Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCOA_2bf_b1o1nXSHZO5Re5DjSD66Pa6MY",
+    authDomain: "raona0.firebaseapp.com",
+    projectId: "raona0",
+    storageBucket: "raona0.appspot.com",
+    messagingSenderId: "797719983777",
+    appId: "1:797719983777:web:aa4490f3e9f6f435ec62e0"
+  };
+    // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const firestore = firebase.firestore();
+
+// DOM Elements
+const loginTab = document.getElementById('login-tab');
+const registerTab = document.getElementById('register-tab');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const forgotForm = document.getElementById('forgot-form');
+
+// Switch between tabs
+loginTab.addEventListener('click', () => toggleTabs('login'));
+registerTab.addEventListener('click', () => toggleTabs('register'));
+toggleTabs("register")
+// Switch between forms
+function toggleTabs(tab) {
+  loginTab.classList.remove('active');
+  registerTab.classList.remove('active');
+  
+  if (tab === 'login') {
+    loginTab.classList.add('active');
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    forgotForm.style.display = 'none';
+  } else if (tab === 'register') {
+    registerTab.classList.add('active');
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    forgotForm.style.display = 'none';
+  }
+}
+
+// Generate a unique device ID (for demonstration purposes)
+function generateDeviceId() {
+  return 'dev-' + Math.random().toString(36).substr(2, 9);
+}
+
+// Toast Notification
+function showToast(message, type = 'success') {
+  const toastContainer = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.classList.add('toast', `toast-${type}`, 'show');
+  
+  // Icons for Toasts
+  let icon = '';
+  switch(type) {
+    case 'success':
+      icon = '<i class="fas fa-check-circle"></i>';
+      break;
+    case 'error':
+      icon = '<i class="fas fa-exclamation-circle"></i>';
+      break;
+    case 'info':
+      icon = '<i class="fas fa-info-circle"></i>';
+      break;
+  }
+  
+  toast.innerHTML = `${icon} ${message}`;
+  toastContainer.appendChild(toast);
+
+  // Auto hide after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 500);
+  }, 3000);
+}
+
+// Register user
+function registerUser() {
+    butto.disabled = true
+    butto.innerHTML = 'Creating...'
+  const username = document.getElementById('register-username').value;
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  const confirmPassword = document.getElementById('register-confirm-password').value;
+
+  if (password !== confirmPassword) {
+    showToast("Passwords do not match.", 'error');
+    butto.disabled = false;
+    butto.innerHTML = "Register"
+    return;
+  }
+
+  if (!validateEmail(email)) {
+    showToast("Please enter a valid email.", 'error');
+    butto.disabled = false;
+    butto.innerHTML = "Register"
+    return;
+  }
+
+  const deviceId = generateDeviceId();
+
+  // Check if the email is already registered
+  firestore.collection("users").where("email", "==", email).get().then((querySnapshot) => {
+    if (!querySnapshot.empty) {
+        butto.disabled = false;
+    butto.innerHTML = "Register"
+      showToast("An account with this email already exists.", 'error');
+      return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        firestore.collection("users").doc(user.uid).set({
+          username: username,
+          email: email,
+          deviceId: deviceId,
+        });
+butto.disabled = false;
+    butto.innerHTML = "Register"
+        showToast("Account created successfully!", 'success');
+        toggleTabs('login');
+      })
+      .catch((error) => {
+        showToast(error.message, 'error');
+      });
+  });
+}
+
+// Login user
+function loginUser() {
+     button.disabled = true
+    button.innerHTML = 'Logging In...'
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  if (!validateEmail(email)) {
+     button.disabled = false
+    button.innerHTML = 'Login'
+    showToast("Please enter a valid email.", 'error');
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      firestore.collection("users").doc(user.uid).get().then(doc => {
+        if (doc.exists) {
+          const userData = doc.data();
+          const deviceId = generateDeviceId(); // Device ID for new session
+          if (userData.deviceId !== deviceId) {
+             button.disabled = false
+    button.innerHTML = 'Login'
+            showToast("Multiple accounts detected. Please use only one device per account.", 'error');
+            return;
+          }
+          showToast("Logged in successfully!", 'success');
+          window.location.replace("buy.html")
+        }
+      });
+    })
+    .catch((error) => {
+         button.disabled = false
+    button.innerHTML = 'Login'
+      showToast(error.message, 'error');
+    });
+}
+
+// Forgot password
+function resetPassword() {
+  const email = document.getElementById('forgot-email').value;
+
+  if (!validateEmail(email)) {
+    showToast("Please enter a valid email.", 'error');
+    return;
+  }
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      showToast("Password reset email sent.", 'info');
+      toggleTabs('login');
+    })
+    .catch((error) => {
+      showToast(error.message, 'error');
+    });
+}
+
+// Validate email format
+function validateEmail(email) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email);
+}
+ </script>
+</body>
+</html>

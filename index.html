@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=
+    , initial-scale=1.0">
+    <title>ASTRIQUES</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <!-- Include PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+
+</head>
+<body> 
+    <div class="head">
+       <div class="x">
+        <div class="name">ASTRIQUES</div>
+        <div class="icon bx bx-bell"></div>
+       </div>
+    </div>
+    <div class="main">
+        <div class="title">COURSES</div>
+        <div class="btns">
+            <div class="btn active" id="all" onclick="showdata('all')">All</div>
+            <div class="btn" id="p" onclick="showdata('p')">Purchased</div> 
+        </div>
+            <div class="courses" id="main">
+            <div class="card"> 
+                <div class="trend">NEW</div>
+                <div class="image">
+                    <img src="copy.png" alt="">
+                </div> 
+                <div class="data">
+                    <div class="name">POWERFUL THINKING</div>
+                    <div class="price">INR 257.00</div> 
+                    <button id="payNowBtn" class="btn" style="width: 100%;">Pay Now</button>
+                </div>
+            </div>
+    </div>
+    <div class="bottom">  
+       
+        <div class="v">
+            <div class="ic bx bx-home ac"></div>
+            <div class="ic bx bx-user" onclick="window.location.replace('/profile.html')"></div> 
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script src="app.js"></script>
+    <style>
+        .name {
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .price {  
+            text-align: left;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .trend {
+            position:absolute;
+            top: 0;
+            left: 0; 
+            border-radius: 10px;
+            border-bottom-left-radius: 0px;
+            background-color: #ead1ff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 5px  10px;     
+            
+        }
+        .card { 
+            position: relative; 
+            max-width: fit-content;
+            width: 45%;   
+        }
+        .courses img { 
+            border-radius: 10px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            width: 100%; 
+        }
+        .courses {
+            display: flex;
+            justify-content: space-evenly;
+        }
+      </style>
+       <style>
+        * {
+       
+       user-select: none;
+       outline: none;
+       }
+       body {
+       background-color: rgb(255, 255, 255);
+       font-family: sans-serif;
+       margin:0;
+       }
+       .head {
+       width:100%;
+       position: fixed;
+       background-color: white;
+
+       box-shadow:  0 5px 10px rgba(161, 161, 161, 0.2);;
+       font-size: 20px;
+       top: 0;
+       left: 0;
+       
+       justify-content: space-between;
+       }
+       .main { 
+       margin-top: 60px;
+       text-align: center;
+       }
+       .title {
+       font-size: 20px;
+       font-weight: bold;
+       }
+       .btns {
+       display: flex;
+       justify-content: space-evenly;
+       padding: 10px 10px;
+       }
+       .btn:hover {
+       cursor: pointer;
+       }
+       .btn {
+       padding:10px 10px;
+       border: 1px solid rgb(219, 219, 219);
+       background-color: rgb(241, 241, 241);
+       border-radius: 10px;
+       width: 30%;
+       min-width: fit-content;
+       }
+       .btn.active { 
+       background-color: rgb(222, 211, 255);
+       }
+       .bottom {
+       display: flex;
+       justify-content: space-evenly;
+       position: fixed;
+       bottom: 0;
+       left: 0;
+       font-size: 22px; 
+     
+       width: 100%;
+       
+       }
+       /* General Body Styling */
+       body {
+       font-family: 'Arial', sans-serif;
+       background-color: #f4f4f4;
+       }
+       
+       
+       /* Payment Container */
+       .card {
+         background-color: #fff;
+         
+         border-radius: 10px;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+         text-align: center;
+        
+         border: 1px solid #ddd;
+       }
+       .data {
+           padding: 10px 10px;
+       }
+       /* Heading */
+       .card h2 {
+         font-size: 20px;
+         color: #6a5acd;
+         margin-bottom: 20px;
+         font-weight: 600;
+       }
+       
+       /* Paragraph/Text */
+       .card p {
+         font-size: 18px;
+         color: #555;
+         margin-bottom: 30px;
+       }
+       
+       /* Button Styling */
+       #payNowBtn {
+         background-color: #6a5acd;
+         color: white;
+         padding: 10px 10px;
+         border: none;
+         border-radius: 5px;
+         font-size: 16px;
+         cursor: pointer;
+         transition: background-color 0.3s ease;
+       }
+       
+       #payNowBtn:hover {
+         background-color: #5b4ab1;
+       }
+       
+       /* Toast Styling */
+       .toast {
+         position: fixed;
+         top: 10px;
+         left: 50%;
+         transform: translateX(-50%);
+         padding: 12px 25px;
+         border-radius: 5px;
+         font-size: 16px;
+         color: white;
+         background-color: #28a745;
+         opacity: 0;
+         transition: opacity 0.5s ease;
+         z-index: 1000;
+       }
+       
+       .toast-error {
+         background-color: #dc3545;
+       }
+       
+       .toast-show {
+         opacity: 1;
+       }
+       
+       /* Smooth Input Transitions (For Inputs like email, etc.) */
+       input[type="text"], input[type="email"], input[type="password"], input[type="number"] {
+         width: 100%;
+         padding: 12px;
+         margin-bottom: 15px;
+         border-radius: 5px;
+         border: 1px solid #ddd;
+         font-size: 16px;
+         transition: all 0.3s ease;
+       }
+       
+       input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus {
+         border-color: #6a5acd;
+         outline: none;
+       }
+       
+       /* Animation for Toast */
+       @keyframes toastAnimation {
+         0% {
+           opacity: 0;
+           top: 0;
+         }
+         100% {
+           opacity: 1;
+           top: 10px;
+         }
+       }
+       
+        </style>
+</body>
+</html>
