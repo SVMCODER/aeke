@@ -48,6 +48,8 @@
     * {
   margin: 0;
   padding: 0;
+      user-select:none;
+      outline:none;
   box-sizing: border-box;
 }
 
@@ -246,7 +248,7 @@ function toggleTabs(tab) {
 
 // Generate a unique device ID (for demonstration purposes)
 function generateDeviceId() {
-  return 'dev-' + Math.random().toString(36).substr(2, 9);
+  return 'ast-' + Math.random().toString(36).substr(2, 9);
 }
 
 // Toast Notification
@@ -276,7 +278,7 @@ function showToast(message, type = 'success') {
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 500);
-  }, 3000);
+  }, 5000);
 }
 
 // Register user
@@ -309,7 +311,7 @@ localStorage.setItem("did", deviceId);
     if (!querySnapshot.empty) {
         butto.disabled = false;
     butto.innerHTML = "Register"
-      showToast("An account with this email already exists.", 'error');
+      showToast("Email is already in use.", 'error');
       return;
     }
 
@@ -328,10 +330,7 @@ butto.disabled = false;
         toggleTabs("login")
       })
       .catch((error) => {
-        button.disabled = false;
-  butto.disbaled = false;
-  butto.innerText = "Register"
-  button.innerText = "Log In"
+        
         showToast(error.message, 'error');
       });
   });
@@ -361,7 +360,7 @@ function loginUser() {
           if (userData.deviceId !== localStorage.getItem("did")) {
              button.disabled = false
     button.innerHTML = 'Login'
-            showToast("Multiple accounts detected. Please use only one device per account.", 'error');
+            showToast("This account is logged in somewhere else, please use another account!", 'error');
             return;
           }
           showToast("Logged in successfully!", 'success');
@@ -381,10 +380,7 @@ function resetPassword() {
   const email = document.getElementById('forgot-email').value;
 
   if (!validateEmail(email)) {
-    button.disabled = false;
-  butto.disbaled = false;
-  butto.innerText = "Register"
-  button.innerText = "Log In"
+    
     showToast("Please enter a valid email.", 'error');
     return;
   }
@@ -396,20 +392,14 @@ function resetPassword() {
     })
     .catch((error) => {
       showToast(error.message, 'error');
-      button.disabled = false;
-  butto.disbaled = false;
-  butto.innerText = "Register"
-  button.innerText = "Log In"
+      
     });
 }
 
 // Validate email format
 function validateEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  button.disabled = false;
-  butto.disbaled = false;
-  butto.innerText = "Register"
-  button.innerText = "Log In"
+  
   return emailPattern.test(email);
 }
  </script>
