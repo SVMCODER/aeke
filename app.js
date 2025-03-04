@@ -26,8 +26,8 @@ payNowBtn.addEventListener("click", function () {
 
   // Prepare payment options
   const options = {
-    key: "YOUR_RAZORPAY_KEY",  // Replace with your Razorpay key
-    amount: 257 * 100,  // 257 INR
+    key: "rzp_test_3ADFKimnCz8iXo",  // Replace with your Razorpay key
+    amount: 2 * 100,  // 257 INR
     currency: "INR",
     name: "ASTRIQUES",
     description: "PowerFul Thinking",
