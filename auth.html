@@ -321,10 +321,11 @@ function registerUser() {
           email: email,
           deviceId: deviceId,
         });
+        localStorage.setItem("did", deviceId);
 butto.disabled = false;
     butto.innerHTML = "Register"
         showToast("Account created successfully!", 'success');
-        toggleTabs('login');
+        window.location.replace("/")
       })
       .catch((error) => {
         showToast(error.message, 'error');
@@ -353,14 +354,14 @@ function loginUser() {
         if (doc.exists) {
           const userData = doc.data();
           const deviceId = generateDeviceId(); // Device ID for new session
-          if (userData.deviceId !== deviceId) {
+          if (userData.deviceId !== localStorage.getItem("did")) {
              button.disabled = false
     button.innerHTML = 'Login'
             showToast("Multiple accounts detected. Please use only one device per account.", 'error');
             return;
           }
           showToast("Logged in successfully!", 'success');
-          window.location.replace("buy.html")
+          window.location.replace("/")
         }
       });
     })
