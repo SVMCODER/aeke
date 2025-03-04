@@ -303,7 +303,7 @@ function registerUser() {
   }
 
   const deviceId = generateDeviceId();
-
+localStorage.setItem("did", deviceId);
   // Check if the email is already registered
   firestore.collection("users").where("email", "==", email).get().then((querySnapshot) => {
     if (!querySnapshot.empty) {
@@ -321,13 +321,17 @@ function registerUser() {
           email: email,
           deviceId: deviceId,
         });
-        localStorage.setItem("did", deviceId);
+        
 butto.disabled = false;
     butto.innerHTML = "Register"
-        showToast("Account created successfully!", 'success');
-        window.location.replace("/")
+        showToast("Account created successfully, Please login!", 'success');
+        toggleTabs("login")
       })
       .catch((error) => {
+        button.disabled = false;
+  butto.disbaled = false;
+  butto.innerText = "Register"
+  button.innerText = "Log In"
         showToast(error.message, 'error');
       });
   });
@@ -377,6 +381,10 @@ function resetPassword() {
   const email = document.getElementById('forgot-email').value;
 
   if (!validateEmail(email)) {
+    button.disabled = false;
+  butto.disbaled = false;
+  butto.innerText = "Register"
+  button.innerText = "Log In"
     showToast("Please enter a valid email.", 'error');
     return;
   }
@@ -388,12 +396,20 @@ function resetPassword() {
     })
     .catch((error) => {
       showToast(error.message, 'error');
+      button.disabled = false;
+  butto.disbaled = false;
+  butto.innerText = "Register"
+  button.innerText = "Log In"
     });
 }
 
 // Validate email format
 function validateEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  button.disabled = false;
+  butto.disbaled = false;
+  butto.innerText = "Register"
+  button.innerText = "Log In"
   return emailPattern.test(email);
 }
  </script>
