@@ -1,90 +1,67 @@
+// Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOA_2bf_b1o1nXSHZO5Re5DjSD66Pa6MY",
+            authDomain: "raona0.firebaseapp.com",
+            projectId: "raona0",
+            storageBucket: "raona0.appspot.com",
+            messagingSenderId: "797719983777",
+            appId: "1:797719983777:web:aa4490f3e9f6f435ec62e0"
+        };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCOA_2bf_b1o1nXSHZO5Re5DjSD66Pa6MY",
-    authDomain: "raona0.firebaseapp.com",
-    projectId: "raona0",
-    storageBucket: "raona0.appspot.com",
-    messagingSenderId: "797719983777",
-    appId: "1:797719983777:web:aa4490f3e9f6f435ec62e0"
-  };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-  // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+        document.getElementById("payNowBtn").addEventListener("click", function () {
+            // Check if user is logged in
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please log in to proceed with payment.");
+                return;
+            }
 
+            // Razorpay payment options
+            var options = {
+                "key": "rzp_test_3ADFKimnCz8iXo", // Replace with your Razorpay Key
+                "amount": 257 * 100, // 257 INR (in paisa)
+                "currency": "INR",
+                "name": "ASTRIQUES",
+                "description": "Powerful Thinking",
+                "image": "copy.png",
+                "handler": function (response) {
+                    console.log("Payment successful: ", response);
+                    
+                    // Save payment details to Firestore
+                    db.collection("paid").add({
+                        email: user.email,
+                        paymentId: response.razorpay_payment_id,
+                        amount: 257,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    })
+                    .then(() => {
+                        console.log("Payment details saved to Firestore");
+                        alert("Payment Successful!");
+                    })
+                    .catch((error) => {
+                        console.error("Error saving payment details: ", error);
+                    });
+                },
+                "prefill": {
+                    "name": user.displayName || "User",
+                    "email": user.email,
+                    "contact": "9876543210",
+                },
+                "theme": {
+                    "color": "#6a5acd"
+                }
+            };
 
-const payNowBtn = document.getElementById("payNowBtn");
+            // Open Razorpay Checkout
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        });
 
-payNowBtn.addEventListener("click", function () {
-  // Get the logged-in user's email (Assumed user is already logged in)
-  const user = auth.currentUser;
-  if (!user) {
-    alert("Please log in to proceed with payment.");
-    return;
-  }
-
-  // Prepare payment options
-  const options = {
-    key: "rzp_test_3ADFKimnCz8iXo",  // Replace with your Razorpay key
-    amount: 2 * 100,  // 257 INR
-    currency: "INR",
-    name: "ASTRIQUES",
-    description: "PowerFul Thinking",
-    image: "copy.png", // Add logo URL if available
-    handler: function (response) { 
-      const paymentId = response.razorpay_payment_id;
-      const signature = response.razorpay_signature;
-      
-      // Verify payment success (client-side verification)
-      const razorpayOrderId = response.razorpay_order_id;
-
-      // Verify signature (this is the critical client-side verification)
-      verifyPayment(razorpayOrderId, paymentId, signature, user.email);
-    },
-    prefill: {
-      name: user.displayName || "Username",
-      email: user.email,
-      contact: "9876543210",
-    },
-    theme: {
-      color: "#6a5acd"
-    }
-  };
-
-  // Open Razorpay Checkout
-  const razorpay = new Razorpay(options);
-  razorpay.open();
-});
-
-// Verify payment on client-side
-function verifyPayment(orderId, paymentId, signature, email) {
-  const generatedSignature = RazorpayClient.generateSignature({
-    order_id: orderId,
-    payment_id: paymentId
-  });
-
-  if (generatedSignature === signature) {
-    // Payment verified successfully
-    showToast("Payment Successful!", "success");
-
-    // Add user's email to Firestore in the "paid" collection
-    db.collection("paid").add({
-      email: email,
-      paymentId: paymentId,
-      amount: 257,  // Payment amount
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      console.log("User added to 'paid' collection in Firestore");
-    })
-    .catch((error) => {
-      console.error("Error adding user to Firestore: ", error);
-    });
-  } else {
-    showToast("Payment Verification Failed!", "error");
-  }
-}
 
 // Show Toast Notifications
 function showToast(message, type) {
